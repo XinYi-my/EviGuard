@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "Please cite the EviGuard paper when using this code."
+type: software
+title: "EviGuard: Evidence-Guided Connector Intervention for Cross-Modal Safety Unlearning in Multimodal LLMs"
+authors:
+  - family-names: Huang
+    given-names: Xinyi
+  - family-names: Xiang
+    given-names: Pengrui
+  - family-names: Wang
+    given-names: Jie
+  - family-names: Zhai
+    given-names: Xuchen
+  - family-names: Liu
+    given-names: Jinduo
+  - family-names: Han
+    given-names: Honggui
+repository-code: "https://github.com/XinYi-my/EviGuard"
+license: Apache-2.0
+preferred-citation:
+  type: conference-paper
+  title: "EviGuard: Evidence-Guided Connector Intervention for Cross-Modal Safety Unlearning in Multimodal LLMs"
+  authors:
+    - family-names: Huang
+      given-names: Xinyi
+    - family-names: Xiang
+      given-names: Pengrui
+    - family-names: Wang
+      given-names: Jie
+    - family-names: Zhai
+      given-names: Xuchen
+    - family-names: Liu
+      given-names: Jinduo
+    - family-names: Han
+      given-names: Honggui
+  year: 2026
+  collection-title: "Proceedings of the 34th ACM International Conference on Multimedia"
+  doi: "10.1145/3767308.3834945"

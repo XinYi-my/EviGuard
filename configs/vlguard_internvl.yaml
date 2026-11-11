@@ -1,0 +1,109 @@
+# Public example defaults, not recovered final paper settings.
+model:
+  name: ./models/InternVL2_5-8B
+  arch: internvl
+  torch_dtype: float16
+  load_in_4bit: true
+  bnb_4bit_compute_dtype: float16
+  bnb_4bit_quant_type: nf4
+  freeze_vision: true
+  freeze_llm_base: true
+evidence_models:
+  blip2: ./models/blip2-opt-2.7b
+judge_models:
+  roberta_toxic: ./models/toxic-prompt-roberta
+lora:
+  rank: 32
+  alpha: 256
+  dropout: 0.05
+  target_modules:
+  - q_proj
+  - k_proj
+  - v_proj
+  - o_proj
+  - gate_proj
+  - up_proj
+  - down_proj
+  - mlp.fc1
+  - mlp.fc2
+rsf:
+  bottleneck_dim: 512
+  dropout: 0.1
+  evidence_max_tokens: 64
+  default_reliability: 0.5
+subspace:
+  rank_k: 80
+  max_collection_samples: 3000
+  min_fit_samples: 81
+training:
+  seed: 42
+  stage1_steps: 400
+  stage2_steps: 2400
+  total_steps: 2800
+  learning_rate: 0.0001
+  warmup_steps: 80
+  warmup_type: linear
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  batch_size: 1
+  gradient_accumulation_steps: 16
+  mixed_precision: bf16
+  batch_mix_ratio:
+  - 1
+  - 1
+  - 1
+  vlguard_batch_mix_ratio:
+  - 1
+  - 1
+  save_every_steps: 400
+  log_every_steps: 10
+  evidence_log_every_steps: 100
+  eval_every_steps: 400
+  num_feedback_iterations: 3
+  max_seq_length: 1024
+  num_workers: 0
+  retain_text_batch_every: 0
+  retain_text_batch_size: 1
+loss:
+  use_pd: false
+  lambda_pd: 0.0
+  risk_amplify: 1.5
+  gamma: 1.0
+  epsilon: 0.05
+  lambda_s: 0.3
+  lambda_orth: 0.2
+  lambda_cm: 0.15
+  lambda_conf: 0.03
+  hard_sample_threshold: 0.3
+vlguard:
+  data_dir: ./data/VLGuard
+  train_json: train.json
+  test_json: test.json
+  image_dir_train: train
+  image_dir_test: test
+  forget_subset: unsafe
+  retain_subset: safe_safes
+  use_pd: false
+  eval_subsets:
+  - unsafes
+  - safe_unsafes
+  - safe_safes
+data:
+  safeeraser_root: ./data/safeeraser_dataset/dataset
+  train_json: ./data/safeeraser_dataset/dataset/train.json
+  val_json: ''
+  prompt_json: ./data/safeeraser_dataset/dataset/prompt.json
+  img_dir: ./data/safeeraser_dataset/dataset/img
+  pdset_img_dir: ./data/safeeraser_dataset/dataset/pdset/image
+  siuo_data_dir: ./data/SIUO/data
+  siuo_image_dir: ./data/SIUO/images
+  siuo_gen_json: ./data/SIUO/data/siuo_gen.json
+  siuo_mcqa_json: ./data/SIUO/data/siuo_mcqa.json
+  evidence_cache_dir: ./data/evidence_cache
+  require_evidence: true
+evaluation:
+  primary_judge: gpt-4o-2024-11-20
+paths: {}
+release:
+  status: example_configuration
+  historical_final_config: false

@@ -1,0 +1,27 @@
+{
+  "release_date": "2026-11-11",
+  "base_commit": "3c7a249e047f2e55912cc028145e1399fb3b7c16",
+  "inputs": [
+    {
+      "filename": "EviGuard_code.zip",
+      "sha256": "6a4965f7b8c9ee882a20813d05dccd1ae5bfec43a394d13fdddaa0282d419e8f",
+      "role": "Primary submitted source snapshot"
+    },
+    {
+      "filename": "EviGuard.zip",
+      "sha256": "bb3e8c7fc390ce950c98b120a852b2b4b69245a85578da53484f32270b294c27",
+      "role": "Secondary experimental snapshot used for comparison"
+    },
+    {
+      "filename": "3767308.3834945.pdf",
+      "sha256": "ba3b81ab0a042e29b33d5d374da727354e09f5b4a538f34425598308f83cba55",
+      "role": "Final published paper used as method specification"
+    }
+  ],
+  "historical_artifacts": {
+    "final_checkpoint": "unavailable",
+    "training_logs": "unavailable",
+    "final_resolved_configuration": "unavailable",
+    "result_predictions": "unavailable"
+  }
+}

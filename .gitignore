@@ -216,3 +216,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Private experiment artifacts and local models
+/models/
+/data/
+/checkpoints/
+/outputs/
+/logs/
+/figures/
+.env
+.env.*
+!.env.example
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.zip
+*.pdf
