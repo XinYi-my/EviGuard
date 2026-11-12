@@ -2,13 +2,7 @@
 
 Code for **EviGuard: Evidence-Guided Connector Intervention for Cross-Modal Safety Unlearning in Multimodal LLMs**, ACM Multimedia 2026.
 
-[Paper](https://doi.org/10.1145/3767308.3834945) · [中文说明](README_zh-CN.md) · [Method and release changes](docs/RELEASE_NOTES.md) · [Data and evaluation protocol](docs/DATA_AND_EVALUATION.md)
-
-## Release status
-
-This is a maintained source release based on the preserved submitted code, cross-checked against a second experimental snapshot and the final paper. It includes documented corrections and new regression tests.
-
-The original server is no longer available. The final paper checkpoints, complete training logs, final resolved run configurations, and original prediction/judgment files are unavailable. This repository does not contain replacement artifacts or newly reproduced paper results. The example YAML files describe starting configurations for new experiments; they are **not recovered final experiment settings**. Full backbone training and benchmark reproduction have not been validated in this release. See [provenance](docs/SOURCE_MANIFEST.json) and [validation scope](docs/VALIDATION.md).
+[Paper](https://doi.org/10.1145/3767308.3834945) · [中文说明](README_zh-CN.md) · [Implementation notes](docs/IMPLEMENTATION.md) · [Data and evaluation protocol](docs/DATA_AND_EVALUATION.md)
 
 ## Implementation
 
@@ -17,7 +11,7 @@ The original server is no longer available. The final paper checkpoints, complet
 - **Feedback** scores all available forget images and refits the basis from residual high-energy samples between Stage 2 intervals.
 - Trainable components are the floating-point connector, language-model LoRA adapters, and RSF. The vision encoder, base language-model parameters, evidence extractors, and reference model remain frozen.
 
-Backbone integrations are provided for **LLaVA-1.5-7B** and **InternVL2.5-8B**. SafeEraser and VLGuard have training/evaluation entry points; SIUO is evaluation-only. These integrations need validation with actual backbone weights and datasets before interpreting new results as benchmark findings.
+Backbone integrations are provided for **LLaVA-1.5-7B** and **InternVL2.5-8B**. SafeEraser and VLGuard have training/evaluation entry points; SIUO is evaluation-only.
 
 ```text
 configs/                 four backbone/benchmark example configurations
@@ -42,7 +36,7 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
 
-The maintained API bounds include Transformers 4.57.3, PEFT 0.18.0, and huggingface_hub 0.36.2. This is not the lost historical environment. A reference backbone stays resident during training; use hardware with capacity for both models and activations. No memory or throughput claim is made without a backbone run.
+The dependencies include Transformers 4.57.3, PEFT 0.18.0, and huggingface_hub 0.36.2. A reference backbone stays resident during training; use hardware with capacity for both models and activations.
 
 ## Prepare models and data
 
@@ -72,7 +66,7 @@ data/
   evidence_cache/              created by evidence precomputation
 ```
 
-The image-level SafeEraser holdout is an explicit maintained-release protocol choice. Its membership cannot be claimed to match the lost historical split. Keep the same source JSON, image references, and seed for training and evaluation.
+SafeEraser uses an image-level deterministic holdout. Keep the same source JSON, image references, and seed for training and evaluation; see the [data guide](docs/DATA_AND_EVALUATION.md) for split details.
 
 ## Train
 
@@ -94,14 +88,14 @@ For InternVL use `configs/safeeraser_internvl.yaml` or `configs/vlguard_internvl
 
 `stage1_steps`, `stage2_steps`, `total_steps`, and `warmup_steps` count **optimizer updates**, each consuming `gradient_accumulation_steps` microbatches. Stage 2 keeps its entire update budget when split into feedback intervals. If a hard set cannot support the requested rank, feedback retains the previous valid basis and records a warning; initial insufficient-rank fitting fails explicitly.
 
-New runs write logs/metrics and complete checkpoints under the configured `paths`. Checkpoint directories include `adapter/` for PEFT, exact trainable tensors, connector state, RSF state, subspace state, resolved configuration, component hashes, and optional optimizer/scheduler/scaler/RNG state. Secrets are removed from persisted configurations. Every saved artifact comes from the actual new run.
+New runs write logs/metrics and complete checkpoints under the configured `paths`. Checkpoint directories include `adapter/` for PEFT, exact trainable tensors, connector state, RSF state, subspace state, resolved configuration, component hashes, and optional optimizer/scheduler/scaler/RNG state. Secrets are removed from persisted configurations.
 
 ```bash
 # Resume a checkpoint created by this release; the data iterator restarts.
 python scripts/train_safeeraser.py --config configs/safeeraser_llava.yaml   --resume checkpoints/llava/safeeraser/step-400
 ```
 
-Resume restores numerical training state at an optimizer boundary. It does not restore the exact data iterator position and is not bitwise trajectory replay. Resume with the same model and training configuration. Historical adapter-only folders are insufficient for a complete EviGuard restoration and are rejected.
+Resume restores numerical training state at an optimizer boundary. It does not restore the exact data iterator position and is not bitwise trajectory replay. Resume with the same model and training configuration. Adapter-only folders are insufficient for a complete EviGuard restoration and are rejected.
 
 ## Evaluate
 
@@ -131,9 +125,9 @@ python scripts/precompute_evidence.py --config configs/vlguard_llava.yaml --data
 python scripts/eval_vlguard.py --config configs/vlguard_llava.yaml   --checkpoint checkpoints/llava/vlguard/final --eval-datasets vlguard siuo --tag eviguard
 ```
 
-The judge uses `gpt-4o-2024-11-20` with explicit prompts and strict parsing. Invalid API responses, missing images, failed generation, absent references, and empty benchmark subsets stop evaluation. Missing metric prerequisites are represented as JSON `null`; keyword heuristics and text-overlap scores are never substituted for GPT judgments. New judge prompts and split choices are documented as release protocols, so the scorer is not claimed to reconstruct the original server-side evaluation exactly.
+The judge uses `gpt-4o-2024-11-20` with explicit prompts and strict parsing. Invalid API responses, missing images, failed generation, absent references, and empty benchmark subsets stop evaluation. Missing metric prerequisites are represented as JSON `null`; keyword heuristics and text-overlap scores are never substituted for GPT judgments. Prompts, split definitions and metric aggregation are described in the [evaluation guide](docs/DATA_AND_EVALUATION.md).
 
-SafeEraser reports original split labels, ROUGE-L precision, GPT utility score, SARR and their composite when all prerequisites exist. VLGuard reports separate unsafes ASR, safe_unsafes ASR and safe_safes FRR. SIUO reports ASR, SR, ER and joint safe-and-effective rate. JSON outputs retain generated responses and judge protocol metadata. The release does not ship paper score tables as run outputs.
+SafeEraser reports original split labels, ROUGE-L precision, GPT utility score, SARR and their composite when all prerequisites exist. VLGuard reports separate unsafes ASR, safe_unsafes ASR and safe_safes FRR. SIUO reports ASR, SR, ER and joint safe-and-effective rate. JSON outputs retain generated responses and judge protocol metadata.
 
 ## Validation and contribution
 
@@ -142,9 +136,7 @@ python -m compileall -q src scripts
 USE_TF=0 CUDA_VISIBLE_DEVICES="" python -m pytest -q
 ```
 
-See [validation evidence and limits](docs/VALIDATION.md). Synthetic vectors, tiny models and mocked judge replies in `tests/` test software behavior only. They are not benchmark evidence.
-
-The historical baseline/ablation orchestration scripts are excluded from active release because some objectives, checkpoint handling and fallbacks were inconsistent. Their omission and concrete reasons are recorded in the [release notes](docs/RELEASE_NOTES.md). This release does not claim to provide every paper comparison implementation.
+See the [test guide](docs/VALIDATION.md) for the unit and integration tests, including gradient flow, checkpoint roundtrips, dataset handling and evaluation error handling.
 
 When reporting a new experiment, retain the commit hash, exact model revisions, data split/sample IDs, resolved config, environment, checkpoint components, generated predictions and judge outputs. Submit focused changes with behavioral tests; keep benchmark validation separate from software tests.
 

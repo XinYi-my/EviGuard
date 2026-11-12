@@ -1,4 +1,4 @@
-# Maintained release API bounds, not the lost historical environment.
+# EviGuard dependencies.
 # Install the CUDA build of torch/torchvision appropriate for your driver first.
 torch>=2.5.1,<2.6
 torchvision>=0.20.1,<0.21

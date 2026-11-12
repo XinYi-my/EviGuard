@@ -1,4 +1,4 @@
-# Shared maintained-release defaults; not a historical run record.
+# Shared configuration defaults.
 runtime:
   default_configs:
     train: configs/safeeraser_llava.yaml

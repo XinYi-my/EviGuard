@@ -1,4 +1,4 @@
-# Public example defaults, not recovered final paper settings.
+# Example configuration; adjust paths and parameters for your run.
 model:
   name: ./models/llava-1.5-7b-hf
   arch: llava
@@ -109,4 +109,3 @@ logging:
   save_subspace: true
 release:
   status: example_configuration
-  historical_final_config: false

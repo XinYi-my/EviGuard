@@ -57,8 +57,7 @@ def save_checkpoint(eg, output_dir, *, subspace=None, resolved_config=None,
                     manifest=None, training_state=None):
     """Save inference-complete state, with optional trainer/RNG/optimizer state.
 
-    Returns the written manifest. It makes no claim that historical experiment
-    weights exist; callers must supply the actual trained EviGuardModel.
+    Returns the written manifest for the supplied EviGuardModel.
     """
     from peft import PeftModel
 

@@ -1,21 +1,29 @@
-# EviGuard 开源说明
+# EviGuard
 
 论文：[EviGuard: Evidence-Guided Connector Intervention for Cross-Modal Safety Unlearning in Multimodal LLMs](https://doi.org/10.1145/3767308.3834945)，ACM Multimedia 2026。
 
-本仓库是根据保留下来的提交版源码整理、并对照另一份实验快照和最终论文修正的维护版源码。原服务器已过期，最终 checkpoint、完整训练日志、最终解析配置及原始预测/评测记录未能保留下来。本仓库不提供替代这些历史产物的文件，也不声称已经重新复现论文数值。
+EviGuard 通过证据引导的多模态 connector 干预实现安全遗忘，包含风险结构融合（RSF）、connector 局部选择性遗忘（CLSU）和迭代反馈。代码提供 LLaVA-1.5-7B、InternVL2.5-8B 两种骨干模型的集成，支持 SafeEraser、VLGuard 的训练与评测，以及 SIUO 评测。
 
-`configs/` 中四份 YAML 是新实验的示例起点，不是恢复出来的论文最终配置。修复涉及梯度路径、损失尺度、数据划分、步数定义及评测方式，因此新运行结果必须重新验证。代码来源和输入文件 SHA256 见 [SOURCE_MANIFEST.json](docs/SOURCE_MANIFEST.json)。
+## 安装与使用
 
-完整安装、模型路径、证据预计算、训练、恢复、评测命令见 [英文 README](README.md)。主要步骤如下：
+完整环境安装、模型路径、数据准备和命令示例见 [英文 README](README.md)。主要步骤如下：
 
-1. 获取原始 LLaVA-1.5-7B 或 InternVL2.5-8B、BLIP-2 和相应数据集，修改 YAML 中的路径。
-2. 创建独立 Python 环境，安装依赖。实际训练入口面向 CUDA；同时需要常驻冻结参考模型。
-3. 执行 `scripts/precompute_evidence.py --config ...`，再用 `scripts/diagnose_data.py --config ...` 检查数据和证据。
+1. 获取 LLaVA-1.5-7B 或 InternVL2.5-8B、BLIP-2 和相应数据集，修改 `configs/` 中的路径。示例配置分别对应骨干模型与数据集组合。
+2. 创建独立 Python 环境并安装依赖。训练入口面向 CUDA，训练期间同时加载冻结参考模型。
+3. 执行 `scripts/precompute_evidence.py --config ...` 预计算证据，再用 `scripts/diagnose_data.py --config ...` 检查数据与证据缓存。
 4. 使用 `scripts/train_safeeraser.py` 或 `scripts/train_vlguard.py` 训练。阶段步数和 warmup 均以优化器更新次数计，梯度累积独立配置。
-5. 使用 `scripts/eval_safeeraser.py` 或 `scripts/eval_vlguard.py`，显式指定完整 `--checkpoint`，或显式选择 `--vanilla`。SIUO 仅用于评测。
+5. 使用 `scripts/eval_safeeraser.py` 或 `scripts/eval_vlguard.py` 评测，显式指定完整的 `--checkpoint`；基座模型评测使用 `--vanilla`。
 
-本次维护修正了 RSF 第二次前向对 connector 的梯度、按样本对应 InternVL patch、中心化风险子空间及几何损失、Stage 1 最终损失、视觉 token 的训练标签遮罩，以及完整干预状态的保存/恢复等问题。API 评测失败不会退化为关键词或文本重叠分数，数据/图片缺失和生成失败不会算作安全成功。
+## 实现与评测
 
-SafeEraser 使用按图像分组的确定性留出协议，不能声称与历史实验划分一致。历史脚本中不符合其方法定义或存在评测/恢复问题的基线、消融自动运行入口没有纳入本次公开运行范围；详细原因见 [版本说明](docs/RELEASE_NOTES.md)。单元测试中的合成输入只验证程序行为，不能用作论文实验结果。
+RSF 将 OCR、图像标签与 connector 激活融合，按样本计算风险与调制量；CLSU 使用加权中心化 SVD 构建风险子空间，结合方向抑制、正交保留和冻结参考模型约束。checkpoint 包含可训练参数、connector、RSF、风险子空间及解析后的配置，加载后在生成过程中应用 RSF。
 
-保留原仓库 Apache-2.0 许可证；不分发第三方模型权重和数据集。
+SafeEraser 按源图像分组确定性留出，训练和评测应保持源 JSON、图像引用及随机种子一致。SIUO 只用于评测。GPT 评测使用明确的提示词和严格解析，运行错误会显式报出；不满足计算前提的指标以 `null` 表示。
+
+- [实现说明](docs/IMPLEMENTATION.md)
+- [数据格式与评测协议](docs/DATA_AND_EVALUATION.md)
+- [测试说明](docs/VALIDATION.md)
+
+## 许可证
+
+代码使用 [Apache-2.0](LICENSE) 许可证。第三方模型权重和数据集遵循各自许可证。

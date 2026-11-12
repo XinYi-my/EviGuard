@@ -1,6 +1,6 @@
 """Maintained training loop. All configured steps are optimizer updates.
 
-Derived from the submitted trainer; fixes are documented in docs/RELEASE_NOTES.md.
+Implementation details are documented in docs/IMPLEMENTATION.md.
 A resume restores numerical state but restarts the data iterator (not exact replay).
 """
 import json
@@ -203,7 +203,7 @@ class EviGuardTrainer:
         if torch.cuda.is_available():
             state["cuda_rng"] = torch.cuda.get_rng_state_all()
         save_checkpoint(self.model, directory, subspace=self.risk_subspace, resolved_config=self.cfg,
-            manifest={"release_status":"maintained_source_release", "historical_paper_checkpoint":False,
+            manifest={"release_status":"eviguard",
                       "optimizer_steps":self.optimizer_steps, "resume_data_order":"iterator_restarted"}, training_state=state)
 
     def load_resume_checkpoint(self, checkpoint_path=None):

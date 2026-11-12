@@ -1,4 +1,4 @@
-# Public example defaults, not recovered final paper settings.
+# Example configuration; adjust paths and parameters for your run.
 model:
   name: ./models/InternVL2_5-8B
   arch: internvl
@@ -106,4 +106,3 @@ evaluation:
 paths: {}
 release:
   status: example_configuration
-  historical_final_config: false

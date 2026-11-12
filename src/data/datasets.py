@@ -99,9 +99,9 @@ def flatten_safeeraser(raw_data: list, search_dirs: list, seed: int) -> List[Dic
     samples = []
     sid = 0
 
-    # Maintained-release protocol: hold out whole source images, rather than
+    # Hold out whole source images, rather than
     # different questions for the same image. Hash ordering is seed-dependent
-    # and independent of JSON record order. This is not a recovered paper split.
+    # and independent of JSON record order.
     group_keys = {}
     for rec in raw_data:
         image_ref = rec.get("image_path", rec.get("image_id", ""))
